@@ -1,0 +1,13 @@
+# VSCode project settings
+.vscode/
+env/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Dataset files and generated assets
+data/
+temp/
+
