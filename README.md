@@ -1,4 +1,4 @@
-# repairSStuBs
+# Detecting simple stupid bugs (SStuBs) using code changes and repairing them with a seq2seq model
 
 | Pattern Name                   	| SStuBs 	| Correct Fixes 	| Ratio  	| Avg. Patches 	 |
 |--------------------------------	|-------:	|--------------:	|--------:	|--------------:|
