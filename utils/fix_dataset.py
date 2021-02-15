@@ -1,6 +1,10 @@
 import json
 from pathlib import Path
 
+import requests
+
+from data_reader import ManySStuBs4J, DATASET_ROOT
+
 
 def replace_project_names(data):
     '''Replacing project names for projects that are deleted from GitHub
@@ -40,7 +44,15 @@ def replace_project_names(data):
 
 
 def check_projects():
-    pass
+    '''Checking if all project are available on GitHub'''
+
+    manysstubs = ManySStuBs4J(DATASET_ROOT / 'sstubs.json')
+    for github_url in manysstubs.github_urls():
+        try:
+            with requests.get(github_url) as r:
+                r.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(e)
 
 
 def main():
@@ -51,9 +63,11 @@ def main():
     with open(data_path / 'sstubs.json') as file:
         bugs = json.load(file)
 
-    fixed_data = replace_project_names(bugs)
-    with open(data_path / 'sstubs.json', 'w') as file:
-        json.dump(fixed_data, file, indent=2)
+    # fixed_data = replace_project_names(bugs)
+    # with open(data_path / 'sstubs.json', 'w') as file:
+    #     json.dump(fixed_data, file, indent=2)
+
+    check_projects()
 
 
 if __name__ == '__main__':
