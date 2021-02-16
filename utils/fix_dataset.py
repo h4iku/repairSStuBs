@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 
 import requests
+from joblib import Parallel, delayed
 
-from data_reader import ManySStuBs4J, DATASET_ROOT
+from data_reader import DATASET_ROOT, ManySStuBs4J
 
 
 def replace_project_names(data):
@@ -47,12 +48,11 @@ def check_projects():
     '''Checking if all project are available on GitHub'''
 
     manysstubs = ManySStuBs4J(DATASET_ROOT / 'sstubs.json')
-    for github_url in manysstubs.github_urls():
-        try:
-            with requests.get(github_url) as r:
-                r.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            print(e)
+    try:
+        Parallel(n_jobs=-1)(delayed(lambda url: requests.get(url).raise_for_status())(url)
+                            for url in manysstubs.github_urls())
+    except requests.exceptions.RequestException as e:
+        print(e)
 
 
 def main():
