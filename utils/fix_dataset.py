@@ -4,7 +4,7 @@ from pathlib import Path
 import requests
 from joblib import Parallel, delayed
 
-from data_reader import DATASET_ROOT, ManySStuBs4J
+from data_reader import DATASET, ManySStuBs4J, n_jobs
 
 
 def replace_project_names(data):
@@ -45,28 +45,27 @@ def replace_project_names(data):
 
 
 def check_projects():
-    '''Checking if all project are available on GitHub'''
+    '''Checks if all project are available on GitHub'''
 
-    manysstubs = ManySStuBs4J(DATASET_ROOT / 'sstubs.json')
+    manysstubs = ManySStuBs4J(DATASET)
     try:
-        Parallel(n_jobs=-1)(delayed(lambda url: requests.get(url).raise_for_status())(url)
-                            for url in manysstubs.github_urls())
+        Parallel(n_jobs=n_jobs)(delayed(lambda url: requests.get(url).raise_for_status())(url)
+                                for url in manysstubs.github_urls())
     except requests.exceptions.RequestException as e:
         print(e)
 
 
 def main():
 
-    # Make path relative to current module
-    data_path = Path(__file__).parent / '../data'
-
-    with open(data_path / 'sstubs.json') as file:
+    with open(DATASET) as file:
         bugs = json.load(file)
 
-    # fixed_data = replace_project_names(bugs)
-    # with open(data_path / 'sstubs.json', 'w') as file:
-    #     json.dump(fixed_data, file, indent=2)
+    print('Replacing project names...')
+    fixed_data = replace_project_names(bugs)
+    with open(DATASET, 'w') as file:
+        json.dump(fixed_data, file, indent=2)
 
+    print('Checking project URLs...')
     check_projects()
 
 

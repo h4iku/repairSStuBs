@@ -4,15 +4,17 @@ from pathlib import Path
 import requests
 from joblib import Parallel, delayed
 
+from data_reader import DATASET, ManySStuBs4J, n_jobs
 
-def get_info(bug):
-    user_repo = bug['projectName'].split('.')
-    user, repo = user_repo[0], '.'.join(user_repo[1:])
-    fix_commit = bug['fixCommitSHA1']
-    fix_commit_parent = bug['fixCommitParentSHA1']
-    file_path = bug['bugFilePath']
 
-    return user, repo, fix_commit, fix_commit_parent, file_path
+# def get_info(bug):
+#     user_repo = bug['projectName'].split('.')
+#     user, repo = user_repo[0], '.'.join(user_repo[1:])
+#     fix_commit = bug['fixCommitSHA1']
+#     fix_commit_parent = bug['fixCommitParentSHA1']
+#     file_path = bug['bugFilePath']
+
+#     return user, repo, fix_commit, fix_commit_parent, file_path
 
 
 def create_url(user, repo, commit, file_path):
@@ -22,11 +24,7 @@ def create_url(user, repo, commit, file_path):
     return url
 
 
-def download_file(params):
-
-    # FIXME: Use correct parameters
-    # FIXME: Maybe add `stream=True`
-    url, save_path, file_name = params
+def download_file(url, save_path, file_name):
 
     p = save_path / file_name
     if not p.exists() or p.stat().st_size == 0:
@@ -42,21 +40,20 @@ def download_file(params):
         except Exception as e:
             with open('error_log.txt', 'a') as logf:
                 logf.write(f'{e}, {url}\n')
-            # print(e)
-            # print(url)
 
 
 def main():
-    data_path = Path('./_data')
-    output = Path('./bugged_files')
 
-    with open(data_path / 'sstubs.json') as file:
-        bugs = json.load(file)
+    manysstub = ManySStuBs4J(DATASET)
+    bugs = manysstub.bugs
+
+    output = Path('./src_files')
 
     parameters = []
 
     for bug in bugs:
-        user, repo, fix_commit, fix_commit_parent, file_path = get_info(bug)
+        # user, repo, fix_commit, fix_commit_parent, file_path = get_info(bug)
+        user, repo, fix_commit, fix_commit_parent, file_path = bug.username, bug.repository, bug.fix_commit_sha1, bug.fix_commit_parent_sha1, bug.bug_file_path
         split_path = file_path.split('/')
         save_dir = '.'.join(split_path[:-1])
         file_name = split_path[-1]
@@ -72,12 +69,8 @@ def main():
         parameters.append((file_url, output / save_path, file_name))
 
     # Parallel download
-    n_jobs = -1
-    Parallel(n_jobs=n_jobs)(delayed(download_file)(param)
-                            for param in parameters)
-
-    # for param in parameters:
-    #     download_file(param)
+    Parallel(n_jobs=n_jobs)(delayed(download_file)(url, save_path, file_name)
+                            for url, save_path, file_name in parameters)
 
 
 if __name__ == '__main__':

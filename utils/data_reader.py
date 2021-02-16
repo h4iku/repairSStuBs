@@ -1,4 +1,5 @@
 import json
+from collections import namedtuple
 from pathlib import Path
 
 
@@ -67,11 +68,20 @@ class ManySStuBs4J:
         return {b.github_url for b in self.bugs}
 
 
-# Make path relative to current module
-DATASET_ROOT = Path(__file__).parent / '../data'
+# TODO: Maybe break this into two modules and have a separate config module.
+# Configuration variables start here
+n_jobs = -1
 
-# FIXME: Fix the dataset path somethere so you don't repeat it everywhere.
-# FIXME: For parallel parts also fix the thread count somewhere.
+# Make dataset paths relative to current module
+DATASET_ROOT = Path(__file__).parent / '../data'
+sstubs = DATASET_ROOT / 'sstubs.json'
+bugs = DATASET_ROOT / 'bugs.json'
+sstubs_large = DATASET_ROOT / 'sstubsLarge.json'
+bugs_large = DATASET_ROOT / 'bugsLarge.json'
+
+DATASET = sstubs
+
+src_files = DATASET_ROOT / '../src_files'
 
 
 def main():
