@@ -1,5 +1,4 @@
 import json
-from collections import namedtuple
 from pathlib import Path
 
 
@@ -51,6 +50,33 @@ class Bug:
     def file_url_parent_hash(self):
         return self.create_file_url(self.fix_commit_parent_sha1)
 
+    @property
+    def file_name(self):
+        return Path(self.bug_file_path).name
+
+    @property
+    def file_dir(self):
+        return '.'.join(self.bug_file_path.split('/')[:-1])
+
+    @property
+    def buggy_file_dir(self):
+        return Path(f'{self.project_name}/{self.fix_commit_parent_sha1}/{self.file_dir}')
+
+    @property
+    def fixed_file_dir(self):
+        return Path(f'{self.project_name}/{self.fix_commit_sha1}/{self.file_dir}')
+
+    @property
+    def buggy_file_line_dir(self):
+        return Path(f'{self.project_name}/{self.fix_commit_parent_sha1} /'
+                    f'{self.file_dir}/{self.file_name}/{self.bug_line_num}')
+
+    @property
+    def fixed_file_line_dir(self):
+        return Path(f'{self.project_name}/{self.fix_commit_sha1} /'
+                    f'{self.file_dir}/{self.file_name}/{self.fix_line_num}')
+
+
 # TODO: Have something that returns all bug properties and something that returns all fix properties
 # bug.buggy_commit, bug.fix_commit
 
@@ -92,7 +118,9 @@ def main():
     print(bugs[0].file_url_fix_hash)
     print(bugs[0].file_url_parent_hash)
 
-    print(manysstubs.github_urls())
+    # print(manysstubs.github_urls())
+
+    print(bugs[0].file_name)
 
 
 if __name__ == '__main__':
