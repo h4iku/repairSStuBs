@@ -68,17 +68,11 @@ class Bug:
 
     @property
     def buggy_file_line_dir(self):
-        return Path(f'{self.project_name}/{self.fix_commit_parent_sha1} /'
-                    f'{self.file_dir}/{self.file_name}/{self.bug_line_num}')
+        return self.buggy_file_dir / f'{self.file_name}/{self.bug_line_num}'
 
     @property
     def fixed_file_line_dir(self):
-        return Path(f'{self.project_name}/{self.fix_commit_sha1} /'
-                    f'{self.file_dir}/{self.file_name}/{self.fix_line_num}')
-
-
-# TODO: Have something that returns all bug properties and something that returns all fix properties
-# bug.buggy_commit, bug.fix_commit
+        return self.fixed_file_dir / f'{self.file_name}/{self.fix_line_num}'
 
 
 class ManySStuBs4J:
@@ -100,14 +94,14 @@ n_jobs = -1
 
 # Make dataset paths relative to current module
 DATASET_ROOT = Path(__file__).parent / '../data'
+SRC_FILES = DATASET_ROOT / 'src_files'
+
 sstubs = DATASET_ROOT / 'sstubs.json'
 bugs = DATASET_ROOT / 'bugs.json'
 sstubs_large = DATASET_ROOT / 'sstubsLarge.json'
 bugs_large = DATASET_ROOT / 'bugsLarge.json'
 
 DATASET = sstubs
-
-src_files = DATASET_ROOT / '../src_files'
 
 
 def main():
@@ -121,6 +115,7 @@ def main():
     # print(manysstubs.github_urls())
 
     print(bugs[0].file_name)
+    print(bugs[0].fixed_file_line_dir)
 
 
 if __name__ == '__main__':
