@@ -1,28 +1,39 @@
-from pathlib import Path
-
 import requests
 from joblib import Parallel, delayed
 
 from data_reader import DATASET, SRC_FILES, ManySStuBs4J, n_jobs
 
 
+def check_extra_newline(jfile):
+    '''Sometimes downloaded files have extra new lines in each line.
+    This function detects and deletes these extra new lines.
+    '''
+
+    with open(jfile, 'rb') as jf:
+        content = jf.read()
+
+    lines = content.splitlines()
+    odd_lines = lines[1::2]
+    if all((x == b'' for x in odd_lines)):
+        print(jfile)
+        with open(jfile, 'wb') as f:
+            f.write(b'\n'.join(lines[::2]))
+
+
 def download_file(url, save_path):
 
-    if not save_path.exists() or save_path.stat().st_size == 0:
+    while not save_path.exists() or save_path.stat().st_size == 0:
         try:
             with requests.get(url) as r:
                 r.raise_for_status()
-                print(url)
                 save_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(save_path, 'wb') as file:
                     file.write(r.content)
-                # Check if the save file doesn't have extra new lines.
-                # If yes, delete and download it again.
-                # FIXME: Maybe it's better to first download all, then check for
-                # problems, delete them and download again until no problem.
         except Exception as e:
             with open('error_log.txt', 'a') as logf:
                 logf.write(f'{e}, {url}\n')
+
+    check_extra_newline(save_path)
 
 
 def main():
