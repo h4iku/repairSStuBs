@@ -18,10 +18,11 @@ def replace_project_names(data):
         'wyouflf.xUtils': 'lailiaomm.xUtils',
         'floragunncom.search-guard': 'ballesterosam.search-guard',
         'b3log.solo': '88250.solo',
-        'b3log.symphony': '88250.symphony'
+        'b3log.symphony': '88250.symphony',
+        'jersey.jersey': 'javaee.jersey'
     }
 
-    # Without user part with only repository name
+    # Without user part, with only repository name
     repo_only_projects = {
         'bazel': 'bazelbuild.bazel',
         'netty-in-action': 'normanmaurer.netty-in-action',
