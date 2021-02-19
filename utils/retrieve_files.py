@@ -1,5 +1,7 @@
 import requests
 from joblib import Parallel, delayed
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from data_reader import DATASET, SRC_FILES, ManySStuBs4J, n_jobs
 
@@ -20,11 +22,11 @@ def check_extra_newline(jfile):
             f.write(b'\n'.join(lines[::2]))
 
 
-def download_file(url, save_path):
+def download_file(session, url, save_path):
 
-    while not save_path.exists() or save_path.stat().st_size == 0:
+    if not save_path.exists() or save_path.stat().st_size == 0:
         try:
-            with requests.get(url) as r:
+            with session.get(url) as r:
                 r.raise_for_status()
                 save_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(save_path, 'wb') as file:
@@ -56,9 +58,14 @@ def main():
              SRC_FILES / bug.fixed_file_dir / bug.file_name)
         )
 
-    # Parallel download
-    Parallel(n_jobs=n_jobs)(delayed(download_file)(url, save_path)
-                            for url, save_path in download_params)
+    with requests.Session() as session:
+        retries = Retry(total=5,
+                        backoff_factor=0.1,
+                        status_forcelist=[500, 502, 503, 504])
+        session.mount('https://', HTTPAdapter(max_retries=retries))
+
+        Parallel(n_jobs=n_jobs)(delayed(download_file)(session, url, save_path)
+                                for url, save_path in download_params)
 
 
 if __name__ == '__main__':
