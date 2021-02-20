@@ -6,22 +6,6 @@ from urllib3.util.retry import Retry
 from data_reader import DATASET, SRC_FILES, ManySStuBs4J, n_jobs
 
 
-def check_extra_newline(jfile):
-    '''Sometimes downloaded files have extra new lines in each line.
-    This function detects and deletes these extra new lines.
-    '''
-
-    with open(jfile, 'rb') as jf:
-        content = jf.read()
-
-    lines = content.splitlines()
-    odd_lines = lines[1::2]
-    if all((x == b'' for x in odd_lines)):
-        print(jfile)
-        with open(jfile, 'wb') as f:
-            f.write(b'\n'.join(lines[::2]))
-
-
 def download_file(session, url, save_path):
 
     if not save_path.exists() or save_path.stat().st_size == 0:
@@ -34,8 +18,6 @@ def download_file(session, url, save_path):
         except Exception as e:
             with open('error_log.txt', 'a') as logf:
                 logf.write(f'{e}, {url}\n')
-
-    check_extra_newline(save_path)
 
 
 def main():
