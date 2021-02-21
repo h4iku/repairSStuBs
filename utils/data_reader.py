@@ -102,21 +102,3 @@ sstubs_large = DATASET_ROOT / 'sstubsLarge.json'
 bugs_large = DATASET_ROOT / 'bugsLarge.json'
 
 DATASET = sstubs
-
-
-def main():
-    manysstubs = ManySStuBs4J(DATASET_ROOT / 'sstubs.json')
-    bugs = manysstubs.bugs
-    print(bugs[0].username, bugs[0].repository, bugs[0].fix_commit_sha1)
-    print(bugs[0].github_url)
-    print(bugs[0].file_url_fix_hash)
-    print(bugs[0].file_url_parent_hash)
-
-    # print(manysstubs.github_urls())
-
-    print(bugs[0].file_name)
-    print(bugs[0].fixed_file_line_dir)
-
-
-if __name__ == '__main__':
-    main()
