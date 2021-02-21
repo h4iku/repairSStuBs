@@ -1,10 +1,9 @@
 import json
-from pathlib import Path
 
 import requests
 from joblib import Parallel, delayed
 
-from data_reader import DATASET, ManySStuBs4J, n_jobs
+from .data_reader import DATASET, ManySStuBs4J, n_jobs
 
 
 def replace_project_names(data):

@@ -3,7 +3,7 @@ from joblib import Parallel, delayed
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from data_reader import DATASET, SRC_FILES, ManySStuBs4J, n_jobs
+from .data_reader import DATASET, SRC_FILES, ManySStuBs4J, n_jobs
 
 
 def download_file(session, url, save_path):
