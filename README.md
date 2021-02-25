@@ -1,5 +1,32 @@
 # Detecting simple stupid bugs (SStuBs) using code changes and repairing them with a seq2seq model
 
+Some code to work with the [ManySStuBs4J dataset](https://doi.org/10.5281/zenodo.3653444) which is a collection of simple fixes to one liner Java bugs.
+
+## Repository Description
+
+### `utils`:
+
+This package contains some utility modules to fix and prepare the data.
+
+- `data_reader.py`: Loads the `json` dataset and puts SStuB properties into a `Bug` class. It defines some useful functions like generating GitHub URLs to be used in other modules. There are also configuration variables regarding the path of datasets and other assets:
+```python
+DATASET_ROOT = '../data'
+SRC_FILES = DATASET_ROOT / 'src_files'
+
+sstubs = DATASET_ROOT / 'sstubs.json'
+bugs = DATASET_ROOT / 'bugs.json'
+sstubs_large = DATASET_ROOT / 'sstubsLarge.json'
+bugs_large = DATASET_ROOT / 'bugsLarge.json'
+```
+
+- `fix_dataset.py`: Some projects in the dataset were removed from GitHub or moved to another repository, so this module replaces them with an appropriate fork or new repository that contains the same history to have access its commits and files. Some project names also only contained the repository name (in the large version of the dataset), so I manually found and completed their repository owner part. After replacing correct project names, GitHub URL for each project is built and checked if the project actually exists on GitHub.
+
+### `detect`:
+
+This package contains a simple example-based bug detection tool that uses a feed-forward neural network classifier.
+
+### `repair`:
+
 | Pattern Name                   	| SStuBs 	| Correct Fixes 	| Ratio  	| Avg. Patches 	 |
 |--------------------------------	|-------:	|--------------:	|--------:	|--------------:|
 | `CHANGE_IDENTIFIER`              	|   2429 	|           399 	| 16.43% 	| 38.96        	 |
