@@ -21,6 +21,14 @@ bugs_large = DATASET_ROOT / 'bugsLarge.json'
 
 - `fix_dataset.py`: Some projects in the dataset were removed from GitHub or moved to another repository, so this module replaces them with an appropriate fork or new repository that contains the same history to have access its commits and files. Some project names also only contained the repository name (in the large version of the dataset), so I manually found and completed their repository owner part. After replacing correct project names, GitHub URL for each project is built and checked if the project actually exists on GitHub.
 
+
+- `retrieve_files.py`: Downloads fixed and buggy source files.
+
+| sstubs                                                                                           | bugs               | sstubsLarge               | bugsLarge               |
+|------------------------------------------------------------------------------------------------- |--------------------|---------------------------|-------------------------|
+| [sstubs_src_files.zip](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | bugs_src_files.zip | sstubsLarge_src_files.zip | bugsLarge_src_files.zip |
+
+
 ### `detect`:
 
 This package contains a simple example-based bug detection tool that uses a feed-forward neural network classifier.
@@ -28,7 +36,7 @@ This package contains a simple example-based bug detection tool that uses a feed
 ### `repair`:
 
 | Pattern Name                   	| SStuBs 	| Correct Fixes 	| Ratio  	| Avg. Patches 	 |
-|--------------------------------	|-------:	|--------------:	|--------:	|--------------:|
+|--------------------------------	|-------:	|--------------:	|--------:  |--------------: |
 | `CHANGE_IDENTIFIER`              	|   2429 	|           399 	| 16.43% 	| 38.96        	 |
 | `CHANGE_NUMERAL`                 	|    754 	|           201 	| 26.66% 	| 37.84        	 |
 | `CHANGE_OPERATOR`                	|    250 	|           143 	| 57.2%  	| 43.39        	 |
@@ -43,4 +51,4 @@ This package contains a simple example-based bug detection tool that uses a feed
 | `SWAP_ARGUMENTS`                 	|    120 	|            14 	| 11.67% 	| 36.40        	 |
 | `CHANGE_MODIFIER`                	|     23 	|            12 	| 52.17% 	| 37.39        	 |
 | `LESS_SPECIFIC_IF`               	|    187 	|             9 	| 4.81%  	| 39.53        	 |
-| **Total**                        |   6706 	|          1324 	| 19.74% 	| 39.03        	 |
+| **Total**                         |   6706 	|          1324 	| 19.74% 	| 39.03        	 |
