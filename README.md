@@ -31,7 +31,7 @@ The downloaded source files are available here:
 
 | sstubs | bugs | sstubsLarge | bugsLarge |
 |--------|------|-------------|-----------|
-| [sstubs_src_files.zip](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | bugs_src_files.zip | sstubsLarge_src_files.zip | bugsLarge_src_files.zip |
+| [sstubs_src_files.zip](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | [bugs_src_files.zip](https://www.mediafire.com/file/8933v6lyig3zhb7/bugs_src_files.zip/file) | sstubsLarge_src_files.zip | bugsLarge_src_files.zip |
 
 
 ### `detect`:
