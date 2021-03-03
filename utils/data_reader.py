@@ -90,6 +90,8 @@ class ManySStuBs4J:
 
 # TODO: Maybe break this into two modules and have a separate config module.
 # Configuration variables start here
+
+# The maximum number of concurrently running jobs. (-1 means all CPUs)
 n_jobs = -1
 
 # Make dataset paths relative to current module

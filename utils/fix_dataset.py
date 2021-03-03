@@ -45,7 +45,7 @@ def replace_project_names(data):
 
 
 def check_projects():
-    '''Checks if all project are available on GitHub'''
+    '''Checks if all projects are available on GitHub'''
 
     manysstubs = ManySStuBs4J(DATASET)
     try:

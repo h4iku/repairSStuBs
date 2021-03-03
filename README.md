@@ -1,6 +1,6 @@
 # Detecting simple stupid bugs (SStuBs) using code changes and repairing them with a seq2seq model
 
-Some code to work with the [ManySStuBs4J dataset](https://doi.org/10.5281/zenodo.3653444) which is a collection of simple fixes to one liner Java bugs.
+Some code to work with the [ManySStuBs4J dataset](https://doi.org/10.5281/zenodo.3653444), which is a collection of simple fixes to one liner Java bugs.
 
 ## Repository Description
 
@@ -8,7 +8,9 @@ Some code to work with the [ManySStuBs4J dataset](https://doi.org/10.5281/zenodo
 
 This package contains some utility modules to fix and prepare the data.
 
-- `data_reader.py`: Loads the `json` dataset and puts SStuB properties into a `Bug` class. It defines some useful functions like generating GitHub URLs to be used in other modules. There are also configuration variables regarding the path of datasets and other assets:
+**`data_reader.py`:**
+Loads the `json` dataset and puts SStuB properties into a `Bug` class. It defines some useful functions like generating GitHub URLs to be used in other modules. There are also configuration variables regarding the path of datasets and other assets:
+
 ```python
 DATASET_ROOT = '../data'
 SRC_FILES = DATASET_ROOT / 'src_files'
@@ -19,19 +21,23 @@ sstubs_large = DATASET_ROOT / 'sstubsLarge.json'
 bugs_large = DATASET_ROOT / 'bugsLarge.json'
 ```
 
-- `fix_dataset.py`: Some projects in the dataset were removed from GitHub or moved to another repository, so this module replaces them with an appropriate fork or new repository that contains the same history to have access its commits and files. Some project names also only contained the repository name (in the large version of the dataset), so I manually found and completed their repository owner part. After replacing correct project names, GitHub URL for each project is built and checked if the project actually exists on GitHub.
+**`fix_dataset.py`:**
+Some projects in the dataset are removed from GitHub or moved to another repository (e.g., `b3log.solo` has moved to `88250.solo`). This module replaces them with an appropriate fork or new repository that contains the same history to have access to its commits and files. Furthermore, especially in the large version, some project names only contain the repository name (e.g., `struts` that should be `apache.struts`). Therefore, I manually found and completed their repository owner part. After replacing correct project names, GitHub URL for each project is built and checked if the project exists on GitHub.
 
 
-- `retrieve_files.py`: Downloads fixed and buggy source files.
+**`retrieve_files.py`:**
+Downloads fixed and buggy source files based on the commit hashes given for each bug. The download process is concurrent, and the maximum number of jobs can be specified using the `n_jobs` variable in `data_reader.py`.
+The downloaded source files are available here:
 
-| sstubs                                                                                           | bugs               | sstubsLarge               | bugsLarge               |
-|------------------------------------------------------------------------------------------------- |--------------------|---------------------------|-------------------------|
+| sstubs | bugs | sstubsLarge | bugsLarge |
+|--------|------|-------------|-----------|
 | [sstubs_src_files.zip](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | bugs_src_files.zip | sstubsLarge_src_files.zip | bugsLarge_src_files.zip |
 
 
 ### `detect`:
 
 This package contains a simple example-based bug detection tool that uses a feed-forward neural network classifier.
+
 
 ### `repair`:
 
