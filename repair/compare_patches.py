@@ -1,5 +1,4 @@
 import csv
-import linecache
 import shutil
 import subprocess
 from pathlib import Path
@@ -10,8 +9,6 @@ from utils.data_reader import (DATASET, INPUT, REPAIR_OUTPUT, REPAIR_RESULT,
 
 
 def create_fixed_file(dir_path, file_name, line_number, fixed_line):
-
-    print(fixed_line)
 
     # Copy generated file
     fixed_file_comp = shutil.copyfile(
@@ -28,13 +25,10 @@ def create_fixed_file(dir_path, file_name, line_number, fixed_line):
     return fixed_file_comp
 
 
-def compare(patch_dir, file_name, bug_line_number, fixed_line):
-
-    fixed_file_comp = create_fixed_file(
-        patch_dir, file_name, bug_line_number, fixed_line)
+def compare(patched_file, fixed_comp_file, line_number, fixed_line):
 
     ast_diff = Path(__file__).parent / 'lib/gumtree-spoon-ast-diff.jar'
-    cmd = f'java -jar {ast_diff} {patch_dir/file_name} {fixed_file_comp}'
+    cmd = f'java -jar {ast_diff} {patched_file} {fixed_comp_file}'
     try:
         comp_out = subprocess.check_output(
             cmd, shell=True, stderr=subprocess.DEVNULL).decode()
@@ -46,11 +40,12 @@ def compare(patch_dir, file_name, bug_line_number, fixed_line):
 
     except Exception as e:
 
-        # Fallback to comparing simple strings
-        with open(patch_dir / file_name) as f:
+        # Fallback to comparing strings
+        with open(patched_file) as f:
             lines = f.read().splitlines()
-        buggy_line = lines[bug_line_number - 1]
-        if buggy_line.replace(' ', '') == fixed_line.strip().replace(' ', ''):
+        buggy_line = lines[line_number - 1]
+
+        if buggy_line.strip().replace(' ', '') == fixed_line.strip().replace(' ', ''):
             return True
         else:
             return False
@@ -59,8 +54,6 @@ def compare(patch_dir, file_name, bug_line_number, fixed_line):
 def main():
 
     bugs = ManySStuBs4J(DATASET).bugs
-
-    bugs = [b for b in bugs][:1]
 
     REPAIR_RESULT.touch()
 
@@ -73,7 +66,6 @@ def main():
 
         print(f'Patch comparing for bug {i}')
 
-        # buggy_file = bug.buggy_file_dir / bug.file_name
         fixed_file = bug.fixed_file_line_dir / bug.file_name
 
         # If the bug is already processed
@@ -82,28 +74,28 @@ def main():
 
         patch_output = REPAIR_OUTPUT / bug.buggy_file_line_dir
 
+        if not patch_output.exists():
+            continue
+
         try:
-            # FIXME: Use better line retrieval method
             with open(INPUT / fixed_file) as file:
                 fixed_line = file.readlines()[bug.bug_line_num - 1]
-            # fixed_line = linecache.getline(
-            #     str(INPUT / fixed_file), bug.fix_line_num)
         except Exception as e:
             print(e)
             print(INPUT / fixed_file)
             continue
 
-        if not patch_output.exists():
-            continue
+        fixed_comp_file = create_fixed_file(
+            INPUT / bug.buggy_file_line_dir,
+            bug.file_name, bug.bug_line_num, fixed_line)
 
-        # comp_res = Parallel(n_jobs=n_jobs)(
-        #     delayed(compare)(patch_dir, bug.file_name,
-        #                      bug.bug_line_num, fixed_line)
-        #     for patch_dir in sorted(patch_output.iterdir(), key=attrgetter('name'))
-        # )
+        comp_res = Parallel(n_jobs=n_jobs)(
+            delayed(compare)(patch_dir / bug.file_name, fixed_comp_file,
+                             bug.bug_line_num, fixed_line)
+            for patch_dir in sorted(patch_output.iterdir(), key=lambda x: int(x.name))
+        )
 
-        comp_res = [compare(patch_dir, bug.file_name, bug.bug_line_num, fixed_line)
-                    for patch_dir in sorted(patch_output.iterdir(), key=lambda x: int(x.name))]
+        Path.unlink(fixed_comp_file)
 
         patch_result = [str(bug.buggy_file_line_dir), repr(comp_res),
                         bug.project_name, bug.bug_type]
