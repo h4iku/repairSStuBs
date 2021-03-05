@@ -96,7 +96,8 @@ n_jobs = -1
 DATASET_ROOT = Path(__file__).parent / '../data'
 SRC_FILES = DATASET_ROOT / 'src_files'
 INPUT = DATASET_ROOT / 'input'
-REPAIR_OUT = DATASET_ROOT / 'repair_output'
+REPAIR_OUTPUT = DATASET_ROOT / 'repair_output'
+REPAIR_RESULT = DATASET_ROOT / 'repair_result.csv'
 
 sstubs = DATASET_ROOT / 'sstubs.json'
 bugs = DATASET_ROOT / 'bugs.json'

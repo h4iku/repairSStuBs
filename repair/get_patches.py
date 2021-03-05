@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from utils.data_reader import DATASET, INPUT, REPAIR_OUT, ManySStuBs4J
+from utils.data_reader import DATASET, INPUT, REPAIR_OUTPUT, ManySStuBs4J
 
 
 def main():
@@ -16,7 +16,7 @@ def main():
     for bug in bugs:
 
         input = INPUT / bug.buggy_file_line_dir / bug.file_name
-        patch_output = REPAIR_OUT / bug.buggy_file_line_dir
+        patch_output = REPAIR_OUTPUT / bug.buggy_file_line_dir
 
         # If input file doesn't exist or patches are already generated for this file and line number
         if not input.exists() or patch_output.exists():
