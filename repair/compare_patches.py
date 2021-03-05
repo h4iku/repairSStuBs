@@ -2,7 +2,6 @@ import csv
 import linecache
 import shutil
 import subprocess
-from operator import attrgetter
 from pathlib import Path
 
 from joblib.parallel import Parallel, delayed
@@ -61,7 +60,7 @@ def main():
 
     bugs = ManySStuBs4J(DATASET).bugs
 
-    # bugs = [b for b in bugs][:1]
+    bugs = [b for b in bugs][:1]
 
     REPAIR_RESULT.touch()
 
@@ -74,8 +73,8 @@ def main():
 
         print(f'Patch comparing for bug {i}')
 
-        buggy_file = bug.buggy_file_dir / bug.file_name
-        fixed_file = bug.fixed_file_dir / bug.file_name
+        # buggy_file = bug.buggy_file_dir / bug.file_name
+        fixed_file = bug.fixed_file_line_dir / bug.file_name
 
         # If the bug is already processed
         if str(bug.buggy_file_line_dir) in processed:
@@ -86,12 +85,12 @@ def main():
         try:
             # FIXME: Use better line retrieval method
             with open(INPUT / fixed_file) as file:
-                fixed_line = file.read().splitlines()[bug.bug_line_num - 1]
+                fixed_line = file.readlines()[bug.bug_line_num - 1]
             # fixed_line = linecache.getline(
             #     str(INPUT / fixed_file), bug.fix_line_num)
         except Exception as e:
             print(e)
-            print(INPUT / fixed_file, bug.fix_line_num)
+            print(INPUT / fixed_file)
             continue
 
         if not patch_output.exists():
@@ -104,10 +103,10 @@ def main():
         # )
 
         comp_res = [compare(patch_dir, bug.file_name, bug.bug_line_num, fixed_line)
-                    for patch_dir in sorted(patch_output.iterdir(), key=attrgetter('name'))]
+                    for patch_dir in sorted(patch_output.iterdir(), key=lambda x: int(x.name))]
 
-        patch_result = [str(buggy_file / str(bug.bug_line_num)),
-                        repr(comp_res), bug.project_name, bug.bug_type]
+        patch_result = [str(bug.buggy_file_line_dir), repr(comp_res),
+                        bug.project_name, bug.bug_type]
 
         with open(REPAIR_RESULT, 'a', newline='') as result_csv_file:
             csv_writer = csv.writer(result_csv_file)
