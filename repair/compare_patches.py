@@ -27,11 +27,11 @@ def create_fixed_file(dir_path, file_name, line_number, fixed_line):
 
 def compare(patched_file, fixed_comp_file, line_number, fixed_line):
 
-    ast_diff = Path(__file__).parent / 'lib/gumtree-spoon-ast-diff.jar'
-    cmd = f'java -jar {ast_diff} {patched_file} {fixed_comp_file}'
+    ast_diff = (Path(__file__).parent /
+                'lib/gumtree-spoon-ast-diff-1.30-jar-with-dependencies.jar')
+    cmd = ['java', '-jar', ast_diff, patched_file, fixed_comp_file]
     try:
-        comp_out = subprocess.check_output(
-            cmd, shell=True, stderr=subprocess.DEVNULL).decode()
+        comp_out = subprocess.check_output(cmd).decode()
 
         if 'no AST change' in comp_out:
             return True
