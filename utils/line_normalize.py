@@ -42,7 +42,7 @@ def check_line(lines, line_number):
         new_line = stripped_line
         i = line_number - 1
 
-        while not prev_line.endswith((';', '{')):
+        while not prev_line.endswith((';', '{', '}')):
             new_line = prev_line + ' ' + new_line
             new_lines[i] = ''
             i -= 1

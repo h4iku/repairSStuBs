@@ -146,6 +146,14 @@ class TestLineNormalize(unittest.TestCase):
         normed_lines = check_line(lines, line_number - 1)
         self.assertEqual(normed_lines[line_number - 1], result)
 
+    def test_closing_bracket_before_line(self):
+        result = ('if (StringUtils.isEmpty(formKey)) {')
+        line_number = 336
+        with open(self.FIXS_ROOT / 'DeploymentServiceImpl.java') as f:
+            lines = f.read().splitlines()
+        normed_lines = check_line(lines, line_number - 1)
+        self.assertEqual(normed_lines[line_number - 1], result)
+
     # These two tests break the regex and keep the code in a loop.
     # In the first one, the given line number is actually in the middle of a multiline comment!
     # The second one is in the middle of a huge Enum.
