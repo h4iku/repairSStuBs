@@ -90,7 +90,7 @@ class ManySStuBs4J:
 
 # TODO: Maybe break this into two modules and have a separate config module.
 # Configuration variables start here
-n_jobs = -1
+n_jobs = 4
 
 # Make dataset paths relative to current module
 DATASET_ROOT = Path(__file__).parent / '../data'
