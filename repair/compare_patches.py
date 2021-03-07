@@ -60,7 +60,7 @@ def main():
     # Retreiving already processed bugs
     with open(REPAIR_RESULT, newline='') as f:
         reader = csv.reader(f)
-        processed = {x[0] for x in reader}
+        processed = {(x[0], x[-1]) for x in reader}
 
     for i, bug in enumerate(bugs):
 
@@ -69,7 +69,7 @@ def main():
         fixed_file = bug.fixed_file_line_dir / bug.file_name
 
         # If the bug is already processed
-        if str(bug.buggy_file_line_dir) in processed:
+        if (str(bug.buggy_file_line_dir), bug.bug_type) in processed:
             continue
 
         patch_output = REPAIR_OUTPUT / bug.buggy_file_line_dir
