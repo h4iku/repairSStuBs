@@ -337,8 +337,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             finalFormKey = formKey;
         }
         
-        return finalFormKey;
-    }
+        return finalFormKey;}
     
     protected String getFormKeyWithFormId(Long formId, Map<Long, Form> formIdMap, AbstractModel model, Long appDefinitionId, Long appDeploymentId, User user) {
         String formKey = null;

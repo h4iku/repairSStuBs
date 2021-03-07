@@ -79,7 +79,7 @@ class TestLineNormalize(unittest.TestCase):
         self.assertEqual(normed_lines[line_number - 1], result)
 
     def test_enum_content(self):
-        result = '    Never, IfReplyExpected, Always'
+        result = 'Never, IfReplyExpected, Always'
         line_number = 35
         with open(self.FIXS_ROOT / 'WaitForTaskToComplete.java') as f:
             lines = f.read().splitlines()
@@ -150,6 +150,30 @@ class TestLineNormalize(unittest.TestCase):
         result = ('if (StringUtils.isEmpty(formKey)) {')
         line_number = 336
         with open(self.FIXS_ROOT / 'DeploymentServiceImpl.java') as f:
+            lines = f.read().splitlines()
+        normed_lines = check_line(lines, line_number - 1)
+        self.assertEqual(normed_lines[line_number - 1], result)
+
+    def test_closing_bracket_on_end_line(self):
+        result = ('return finalFormKey;')
+        line_number = 340
+        with open(self.FIXS_ROOT / 'DeploymentServiceImpl.java') as f:
+            lines = f.read().splitlines()
+        normed_lines = check_line(lines, line_number - 1)
+        self.assertEqual(normed_lines[line_number - 1], result)
+
+    def test_case_colon_before_line(self):
+        result = ('free(path, false);')
+        line_number = 3049
+        with open(self.FIXS_ROOT / 'FileSystemMaster.java') as f:
+            lines = f.read().splitlines()
+        normed_lines = check_line(lines, line_number - 1)
+        self.assertEqual(normed_lines[line_number - 1], result)
+
+    def test_case_colon_on_line(self):
+        result = ('case FREE:')
+        line_number = 3048
+        with open(self.FIXS_ROOT / 'FileSystemMaster.java') as f:
             lines = f.read().splitlines()
         normed_lines = check_line(lines, line_number - 1)
         self.assertEqual(normed_lines[line_number - 1], result)

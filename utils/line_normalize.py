@@ -42,19 +42,23 @@ def check_line(lines, line_number):
         new_line = stripped_line
         i = line_number - 1
 
-        while not prev_line.endswith((';', '{', '}')):
+        while not prev_line.endswith((';', '{', '}', ':')):
             new_line = prev_line + ' ' + new_line
             new_lines[i] = ''
             i -= 1
             prev_line = re.sub(multi_comment, '', new_lines[i]).strip()
             prev_line = re.sub(single_comment, '', new_lines[i]).strip()
 
-        # We also need to go down if it's a middle line
-        while not stripped_line.endswith((';', '{')):
+        # We also need to go down if it's a middle line of a statement
+        while not stripped_line.endswith((';', '{', ':')):
 
+            # The block is closed on the statement line
             if stripped_line.endswith('}'):
-                # We were probably in an enum construct
-                return lines
+                del new_lines[line_number]
+                new_lines.insert(line_number, '}')
+                new_line = re.sub(multi_comment, '', new_line[:-1]).strip()
+                new_lines.insert(line_number, new_line)
+                return new_lines
 
             del new_lines[line_number]
             stripped_line = re.sub(
@@ -64,6 +68,9 @@ def check_line(lines, line_number):
             new_line += f' {stripped_line}'
 
         del new_lines[line_number]
+
+        # Because going up we might have captured a complete multiline comment
+        # until reaching a separator.
         new_line = re.sub(multi_comment, '', new_line).strip()
         new_lines.insert(line_number, new_line)
         return new_lines
