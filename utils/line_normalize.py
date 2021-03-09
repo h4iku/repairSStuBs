@@ -55,11 +55,13 @@ def check_line(lines, line_number):
 
             # The block is closed on the statement line
             if stripped_line.endswith('}'):
-                del new_lines[line_number]
-                new_lines.insert(line_number, '}')
-                new_line = re.sub(multi_comment, '', new_line[:-1]).strip()
-                new_lines.insert(line_number, new_line)
-                return new_lines
+                # We were probably in an enum construct
+                return lines
+                # del new_lines[line_number]
+                # new_lines.insert(line_number, '}')
+                # new_line = re.sub(multi_comment, '', new_line[:-1]).strip()
+                # new_lines.insert(line_number, new_line)
+                # return new_lines
 
             del new_lines[line_number]
             stripped_line = re.sub(

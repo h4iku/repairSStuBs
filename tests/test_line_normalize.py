@@ -84,7 +84,7 @@ class TestLineNormalize(unittest.TestCase):
         with open(self.FIXS_ROOT / 'WaitForTaskToComplete.java') as f:
             lines = f.read().splitlines()
         normed_lines = check_line(lines, line_number - 1)
-        self.assertEqual(normed_lines[line_number - 1], result)
+        self.assertEqual(normed_lines[line_number - 1].strip(), result)
 
     def test_single_line(self):
         result = 'private static final Logger LOG = LoggerFactory.getLogger(DefaultManagementAgent.class);'
