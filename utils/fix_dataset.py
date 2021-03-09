@@ -3,7 +3,8 @@ import json
 import requests
 from joblib import Parallel, delayed
 
-from .data_reader import DATASET, ManySStuBs4J, n_jobs
+from .config import DATASET, n_jobs
+from .data_reader import ManySStuBs4J
 
 
 def replace_project_names(data):

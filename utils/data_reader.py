@@ -86,22 +86,3 @@ class ManySStuBs4J:
 
     def github_urls(self):
         return {b.github_url for b in self.bugs}
-
-
-# TODO: Maybe break this into two modules and have a separate config module.
-# Configuration variables start here
-n_jobs = 4
-
-# Make dataset paths relative to current module
-DATASET_ROOT = Path(__file__).parent / '../data'
-SRC_FILES = DATASET_ROOT / 'src_files'
-INPUT = DATASET_ROOT / 'input'
-REPAIR_OUTPUT = DATASET_ROOT / 'repair_output'
-REPAIR_RESULT = DATASET_ROOT / 'repair_result.csv'
-
-sstubs = DATASET_ROOT / 'sstubs.json'
-bugs = DATASET_ROOT / 'bugs.json'
-sstubs_large = DATASET_ROOT / 'sstubsLarge.json'
-bugs_large = DATASET_ROOT / 'bugsLarge.json'
-
-DATASET = sstubs

@@ -1,7 +1,8 @@
 import subprocess
 from pathlib import Path
 
-from utils.data_reader import DATASET, INPUT, REPAIR_OUTPUT, ManySStuBs4J
+from utils.config import DATASET, INPUT, REPAIR_OUTPUT
+from utils.data_reader import ManySStuBs4J
 
 
 def main():

@@ -9,5 +9,7 @@ __pycache__/
 
 # Dataset files and generated assets
 data/
+detect/result
+repair/result
 temp/
 

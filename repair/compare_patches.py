@@ -4,8 +4,8 @@ import subprocess
 from pathlib import Path
 
 from joblib.parallel import Parallel, delayed
-from utils.data_reader import (DATASET, INPUT, REPAIR_OUTPUT, REPAIR_RESULT,
-                               ManySStuBs4J, n_jobs)
+from utils.config import DATASET, INPUT, REPAIR_OUTPUT, REPAIR_RESULT, n_jobs
+from utils.data_reader import ManySStuBs4J
 
 
 def create_fixed_file(dir_path, file_name, line_number, fixed_line):

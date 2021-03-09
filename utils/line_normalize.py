@@ -1,7 +1,8 @@
 import re
 from pathlib import Path
 
-from .data_reader import DATASET, INPUT, SRC_FILES, ManySStuBs4J
+from .config import DATASET, INPUT, SRC_FILES
+from .data_reader import ManySStuBs4J
 
 
 def check_line(lines, line_number):

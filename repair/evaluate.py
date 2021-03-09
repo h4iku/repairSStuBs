@@ -2,7 +2,7 @@ import csv
 from collections import defaultdict
 from statistics import mean
 
-from utils.data_reader import REPAIR_RESULT
+from utils.config import REPAIR_RESULT
 
 
 def main():
