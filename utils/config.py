@@ -13,6 +13,8 @@ REPAIR_OUTPUT = REPAIR_ROOT / 'result/repair_output'
 REPAIR_RESULT = REPAIR_ROOT / 'result/repair_result.csv'
 
 DETECT_ROOT = ROOT / '../detect'
+PATCH_TOKENS = DETECT_ROOT / 'result/patch_tokens.json'
+EMBED_MODEL = DETECT_ROOT / 'result/embedding.model'
 
 sstubs = DATASET_ROOT / 'sstubs.json'
 bugs = DATASET_ROOT / 'bugs.json'
