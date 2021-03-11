@@ -26,8 +26,8 @@ p = r"([^\w_])"
 sstubs = ManySStuBs4J(DATASET).bugs
 model = Doc2Vec.load(str(EMBED_MODEL))
 
-random.Random(100).shuffle(sstubs)
-tf.random.set_seed(100)
+random.Random(3).shuffle(sstubs)
+tf.random.set_seed(3)
 
 
 xs = []
@@ -84,7 +84,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(300, input_dim=x_length,
                           activation="relu", kernel_initializer='normal'),
     tf.keras.layers.Dropout(0.2),
-    tf.keras.layers.Dense(200, activation="relu", kernel_initializer='normal'),
+    tf.keras.layers.Dense(100, activation="relu", kernel_initializer='normal'),
     tf.keras.layers.Dropout(0.2),
     tf.keras.layers.Dense(1, activation="sigmoid",
                           kernel_initializer='normal'),

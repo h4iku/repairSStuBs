@@ -115,9 +115,9 @@ def build_embedding(df):
 
     data = []
     for bug in df:
-        bug['buggy'] = nltk.wordpunct_tokenize(bug['buggy'])
+        # bug['buggy'] = nltk.wordpunct_tokenize(bug['buggy'])
         bug['patched'] = nltk.wordpunct_tokenize(bug['patched'])
-        data.append(list(bug['buggy']))
+        # data.append(list(bug['buggy']))
         data.append(list(bug['patched']))
 
     documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(data)]
