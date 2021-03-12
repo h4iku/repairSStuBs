@@ -12,7 +12,7 @@ This package contains some utility modules to fix and prepare the data.
 Loads the `json` dataset and puts SStuB properties into a `Bug` class. It defines some useful methods like generating GitHub URLs to be used in other modules or the directory paths to access source files.
 
 **`config.py`:**
-Contains configuration variables for dataset paths and other assets:
+Contains configuration variables for dataset paths and other assets. By default, datasets reside in the data directory in the root of the repository:
 
 ```python
 DATASET_ROOT = '../data'
@@ -53,7 +53,15 @@ These downloaded source files are also available here:
 | [sstubs_src_files.zip](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | [bugs_src_files.zip](https://www.mediafire.com/file/8933v6lyig3zhb7/bugs_src_files.zip/file) | sstubsLarge_src_files.zip | bugsLarge_src_files.zip |
 
 **`line_normalize.py`:**
-Line numbers in the dataset are sometimes off, and for example, point to comment multiple lines before the actual intended line. Moreover, sometimes the programmer has broken a single Java statement into multiple lines, and the line number is only pointing to a part of this statement. Therefore, It is needed to normalize these cases by moving up and down the lines and checking for Java language specific separators (e.g., { and ;) to collect the complete Java statement. This is especially needed for the tool used in the `repair` part to generate patches since it needs the given buggy line to be complete Java statements and not just part of a statement.
+Line numbers in the dataset are sometimes off, and for example, point to comment multiple lines before the actual intended line. Moreover, sometimes the programmer has broken a single Java statement into multiple lines, and the line number is only pointing to a part of this statement. Therefore, It is needed to normalize these cases by moving up and down the lines and checking for Java language specific separators like `{` and `;` to collect the complete Java statement. This is especially needed for the tool used in the `repair` part to generate patches since it needs the given buggy line to be complete Java statements and not just part of a statement.
+
+This module does this normalization using a heuristic and saves new source files in a directory like
+
+```
+username.repository/commit_hash/dotted_file_path/filename.java/line_number
+```
+
+where `line_number` shows which line is normalized. These line numbers are the same as the ones in the dataset.
 
 
 ### `detect`:
@@ -61,8 +69,12 @@ Line numbers in the dataset are sometimes off, and for example, point to comment
 This package contains a simple example-based bug detection tool that uses a feed-forward neural network classifier.
 
 **`prepare.py`:**
+Uses `fixPatch` field of each SStuB and extracts the patched lines of the code changes (i.e., the ones starting with ‘+’) as well as the patch context lines. It then tokenizes these to learn word embeddings using [Doc2Vec](https://radimrehurek.com/gensim_3.8.3/models/doc2vec.html). The whole data is used to train 100 dimensional vectors with the window size of 10 around each token. These parameters can change in the `build_embedding()` function.
+
+**`classify.py`:**
+Uses the output of `utils.line_normalize` to build a classifier for each bug type. Bug type is specified using the ‍`bug_type` variable in this module.
 
 
 ### `repair`:
 
-This package uses SequenceR to repair bugs.
+This package uses [SequenceR](https://github.com/KTH/chai) to generate patches and repair bugs.
