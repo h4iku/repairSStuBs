@@ -50,8 +50,10 @@ def check_projects():
 
     manysstubs = ManySStuBs4J(DATASET)
     try:
-        Parallel(n_jobs=n_jobs)(delayed(lambda url: requests.get(url).raise_for_status())(url)
-                                for url in manysstubs.github_urls())
+        Parallel(n_jobs=2)(
+            delayed(lambda url: requests.get(url).raise_for_status())(url)
+            for url in manysstubs.github_urls()
+        )
     except requests.exceptions.RequestException as e:
         print(e)
 
