@@ -4,7 +4,7 @@ Some code to work with the [ManySStuBs4J dataset](https://doi.org/10.5281/zenodo
 
 ## Repository Description
 
-### `utils`:
+### `utils`
 
 This package contains some utility modules to fix and prepare the data.
 
@@ -64,17 +64,66 @@ username.repository/commit_hash/dotted_file_path/filename.java/line_number
 where `line_number` shows which line is normalized. These line numbers are the same as the ones in the dataset.
 
 
-### `detect`:
+### `detect`
 
 This package contains a simple example-based bug detection tool that uses a feed-forward neural network classifier.
 
 **`prepare.py`:**
-Uses `fixPatch` field of each SStuB and extracts the patched lines of the code changes (i.e., the ones starting with ‘+’) as well as the patch context lines. It then tokenizes these to learn word embeddings using [Doc2Vec](https://radimrehurek.com/gensim_3.8.3/models/doc2vec.html). The whole data is used to train 100 dimensional vectors with the window size of 10 around each token. These parameters can change in the `build_embedding()` function.
+Uses `fixPatch` field of each SStuB and extracts the patched lines of the code changes (i.e., the ones starting with ‘+’) as well as the patch context lines. It then tokenizes these to learn word embeddings using [Doc2Vec](https://radimrehurek.com/gensim_3.8.3/models/doc2vec.html). The whole data is used to train 100-dimensional vectors with a window size of 10 around each token. These parameters can change in the `build_embedding()` function.
 
 **`classify.py`:**
-Uses the output of `utils.line_normalize` to build a classifier for each bug type. Bug type is specified using the ‍`bug_type` variable in this module.
+Uses the output lines of `utils/line_normalize.py` to build a bug detection model for each bug pattern. For each line, it infers a vector from the embedding model as the input to the classifier. Bug pattern is specified using the ‍`bug_type` variable, and its values are the same as the ones in the dataset, which are described in the [mineSStuBs repository](https://github.com/mast-group/mineSStuBs). The classifier is a feed-forward neural network with two hidden layers. 
 
 
-### `repair`:
+### `repair`
 
-This package uses [SequenceR](https://github.com/KTH/chai) to generate patches and repair bugs.
+This package generates patches and tries to repair the SStuBs.
+
+**`get_patches.py`:**
+Uses [SequenceR](https://github.com/KTH/chai) to generate patches for each SStuB. You should install SequenceR separately for this to work. The directory where SequenceR installed is specified in the `sequencer_home` variable. By default, it points to the home directory of the operating system. The beam size is also set to 50.
+
+**`compare_patches.py`:**
+After getting patches, it's time to find if the bug is repaired or not. [Gumtree Spoon AST Diff](https://github.com/SpoonLabs/gumtree-spoon-ast-diff/) is used to compare generated patches with the actual fix. You need to have Java 11 installed for Gumtree Spoon AST Diff to work. We copy the patched file and replace the patched line with the fixed line to have two identical source file with only one line of difference. Then AST Diff is used to see if the patched line is the same as the fix line. We don't use the source file from the fix commit for this comparison since a commit may contain other changes to a file.
+
+**`evaluate.py`:**
+Results from the patch comparison of the previous module are written to a file. This module parses this result file and prints out evaluations like total generated patches, the number of repaired bugs and grouping repaired bugs by bug patterns.
+
+
+## How to use
+
+1. Install Python and clone this repository:
+
+    ```
+    git clone https://github.com/h4iku/repairSStuBs.git
+    cd repairSStuBs
+    ```
+
+2. Create a virtual environment and install the dependencies:
+
+    ```
+    python -m venv env
+    python -m pip install -U pip setuptools
+    pip install -r requirements.txt
+    ```
+
+3. To run each module, step outside its package (so you are at the root of the repository) and type:
+
+    ```
+    python -m package.module
+    ```
+
+    For example, to run the `retrieve_files.py` module:
+
+    ```
+    python -m utils.retrieve_files
+    ```
+
+    To run tests:
+
+    ```
+    python -m unittest discover -s tests
+    ```
+
+    Modules in each package have an order of execution, and they work on top of each other's output. The order is intuitive according to their names, and it's the same order as they are described above.
+
+    Also, don't forget to install Java and SequenceR for the repair part.
