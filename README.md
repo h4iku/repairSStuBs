@@ -46,11 +46,13 @@ is saved in:
 apache.camel/d55fc4de68d1c8d9a5aff883e2c5f84ad02aa0b8/components.camel-restlet.src.test.java.org.apache.camel.component.restlet/RestletConfigurationTest.java
 ```
 
-These downloaded source files are also available here:
+The downloaded source files are also available here:
 
-| sstubs | bugs | sstubsLarge | bugsLarge |
-|--------|------|-------------|-----------|
-| [sstubs_src_files.zip](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | [bugs_src_files.zip](https://www.mediafire.com/file/8933v6lyig3zhb7/bugs_src_files.zip/file) | sstubsLarge_src_files.zip | bugsLarge_src_files.zip |
+| all | sstubs | bugs | sstubsLarge | bugsLarge |
+|-----|--------|------|-------------|-----------|
+[all_src_files.zip](https://www.mediafire.com/file/q68ejrted7hfxtq/all_src_files.zip/file) | [sstubs_src_files.zip](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | [bugs_src_files.zip](https://www.mediafire.com/file/8933v6lyig3zhb7/bugs_src_files.zip/file) | [sstubsLarge_src_files.zip](https://www.mediafire.com/file/6y3fziwvof3nucp/sstubsLarge_src_files.zip/file) | [bugsLarge_src_files.zip](https://www.mediafire.com/file/66ekj086uit5dk4/bugsLarge_src_files.zip/file) |
+
+These files have the replaced project names for deleted or moved projects from `fix_dataset.py`.
 
 **`line_normalize.py`:**
 Line numbers in the dataset are sometimes off, and for example, point to comment multiple lines before the actual intended line. Moreover, sometimes the programmer has broken a single Java statement into multiple lines, and the line number is only pointing to a part of this statement. Therefore, It is needed to normalize these cases by moving up and down the lines and checking for Java language specific separators like `{` and `;` to collect the complete Java statement. This is especially needed for the tool used in the `repair` part to generate patches since it needs the given buggy line to be complete Java statements and not just part of a statement.
@@ -89,7 +91,7 @@ After getting patches, it's time to find if the bug is repaired or not. [Gumtree
 Results from the patch comparison of the previous module are written to a file. This module parses this result file and prints out evaluations like total generated patches, the number of repaired bugs and grouping repaired bugs by bug patterns.
 
 
-## How to use
+## How To Use
 
 1. Install Python and clone this repository:
 
