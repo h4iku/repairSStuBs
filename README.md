@@ -95,15 +95,24 @@ Results from the patch comparison of the previous module are written to a file. 
 
 1. Install Python and clone this repository:
 
-    ```
+    ```bash
     git clone https://github.com/h4iku/repairSStuBs.git
     cd repairSStuBs
     ```
 
-2. Create a virtual environment and install the dependencies:
+2. Create a virtual environment and activate it:
+
+    ```bash
+    python -m venv env
+    # On Windows:
+    env\Scripts\activate
+    # Or on Linux:
+    source env/bin/activate
+    ```
+
+    Then install the dependencies:
 
     ```
-    python -m venv env
     python -m pip install -U pip setuptools
     pip install -r requirements.txt
     ```
