@@ -93,7 +93,7 @@ Results from the patch comparison of the previous module are written to a file. 
 
 ## How To Use
 
-1. Install Python and clone this repository:
+1. Install Python 3.8+ and clone this repository:
 
     ```bash
     git clone https://github.com/h4iku/repairSStuBs.git
