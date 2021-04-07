@@ -50,7 +50,7 @@ The downloaded source files are also available here:
 
 | all | sstubs | bugs | sstubsLarge | bugsLarge |
 |-----|--------|------|-------------|-----------|
-[all_src_files.zip](https://www.mediafire.com/file/q68ejrted7hfxtq/all_src_files.zip/file) | [sstubs_src_files.zip](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | [bugs_src_files.zip](https://www.mediafire.com/file/8933v6lyig3zhb7/bugs_src_files.zip/file) | [sstubsLarge_src_files.zip](https://www.mediafire.com/file/6y3fziwvof3nucp/sstubsLarge_src_files.zip/file) | [bugsLarge_src_files.zip](https://www.mediafire.com/file/66ekj086uit5dk4/bugsLarge_src_files.zip/file) |
+[`all_src_files.zip`](https://www.mediafire.com/file/q68ejrted7hfxtq/all_src_files.zip/file) | [`sstubs_src_files.zip`](https://www.mediafire.com/file/ry8zs6u14bdl4dp/sstubs_src_files.zip/file) | [`bugs_src_files.zip`](https://www.mediafire.com/file/8933v6lyig3zhb7/bugs_src_files.zip/file) | [`sstubsLarge_src_files.zip`](https://www.mediafire.com/file/6y3fziwvof3nucp/sstubsLarge_src_files.zip/file) | [`bugsLarge_src_files.zip`](https://www.mediafire.com/file/66ekj086uit5dk4/bugsLarge_src_files.zip/file) |
 
 These files have the replaced project names for deleted or moved projects from `fix_dataset.py`.
 
@@ -74,7 +74,7 @@ This package contains a simple example-based bug detection tool that uses a feed
 Uses `fixPatch` field of each SStuB and extracts the patched lines of the code changes (i.e., the ones starting with ‘+’) as well as the patch context lines. It then tokenizes these to learn word embeddings using [Doc2Vec](https://radimrehurek.com/gensim_3.8.3/models/doc2vec.html). The whole data is used to train 100-dimensional vectors with a window size of 10 around each token. These parameters can change in the `build_embedding()` function.
 
 **`classify.py`:**
-Uses the output lines of `utils/line_normalize.py` to build a bug detection model for each bug pattern. For each line, it infers a vector from the embedding model as the input to the classifier. Bug pattern is specified using the ‍`bug_type` variable, and its values are the same as the ones in the dataset, which are described in the [mineSStuBs repository](https://github.com/mast-group/mineSStuBs). The classifier is a feed-forward neural network with two hidden layers. 
+Uses the output lines of `utils/line_normalize.py` to build a bug detection model for each bug pattern. For each line, it infers a vector from the embedding model as the input to the classifier. Bug pattern is specified using the ‍`bug_type` variable, and its values are the same as the ones in the dataset, which are described in the [mineSStuBs repository](https://github.com/mast-group/mineSStuBs). The classifier is a feed-forward neural network with two hidden layers.
 
 
 ### `repair`
@@ -85,7 +85,7 @@ This package generates patches and tries to repair the SStuBs.
 Uses [SequenceR](https://github.com/KTH/chai) to generate patches for each SStuB. You should install SequenceR separately for this to work. The directory where SequenceR installed is specified in the `sequencer_home` variable. By default, it points to the home directory of the operating system. The beam size is also set to 50.
 
 **`compare_patches.py`:**
-After getting patches, it's time to find if the bug is repaired or not. [Gumtree Spoon AST Diff](https://github.com/SpoonLabs/gumtree-spoon-ast-diff/) is used to compare generated patches with the actual fix. You need to have Java 11 installed for Gumtree Spoon AST Diff to work. We copy the patched file and replace the patched line with the fixed line to have two identical source file with only one line of difference. Then AST Diff is used to see if the patched line is the same as the fix line. We don't use the source file from the fix commit for this comparison since a commit may contain other changes to a file.
+After getting patches, it's time to find if the bug is repaired or not. [Gumtree Spoon AST Diff](https://github.com/SpoonLabs/gumtree-spoon-ast-diff/) is used to compare generated patches with the actual fix. You need to have Java 11 installed for Gumtree Spoon AST Diff to work. We copy the patched file and replace the patched line with the fixed line to have two identical source files with only one line of difference. Then AST Diff is used to see if the patched line is the same as the fix line. We don't use the source file from the fix commit for this comparison since a commit may contain other changes to a file.
 
 **`evaluate.py`:**
 Results from the patch comparison of the previous module are written to a file. This module parses this result file and prints out evaluations like total generated patches, the number of repaired bugs and grouping repaired bugs by bug patterns.
