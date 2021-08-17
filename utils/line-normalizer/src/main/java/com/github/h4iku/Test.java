@@ -9,6 +9,7 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.JavadocComment;
@@ -28,15 +29,20 @@ public class Test {
         List<Comment> comments = cu.getAllContainedComments();
         for (Comment comment : comments) {
 
-            if (comment.getRange().get().begin.line < lineNumber && comment.getRange().get().end.line > lineNumber) {
-                // When the line is in the middle of comments, ignore it.
-                return Optional.empty();
+            // When the line is in the middle of comments
+            if (comment.getRange().get().begin.line <= lineNumber && comment.getRange().get().end.line >= lineNumber) {
 
-            } else if (comment.getRange().get().begin.line == lineNumber && (comment instanceof JavadocComment)
-                    && comment.getCommentedNode().isPresent()) {
                 // For line numbers pointing at the beginning of a Javadoc
-                Node node = comment.getCommentedNode().get();
-                return Optional.of(handleCommentedNode(node));
+                if (comment.getRange().get().begin.line == lineNumber && (comment instanceof JavadocComment)
+                        && comment.getCommentedNode().isPresent()) {
+                    Node node = comment.getCommentedNode().get();
+                    if (node instanceof MethodDeclaration)
+                        return Optional.of(handleCommentedNode((MethodDeclaration) node));
+                    else
+                        return Optional.of(handleCommentedNode((ClassOrInterfaceDeclaration) node));
+                } else {
+                    return Optional.empty();
+                }
             }
         }
 
@@ -44,7 +50,8 @@ public class Test {
 
     }
 
-    private static Line handleCommentedNode(Node node) {
+    private static Line handleCommentedNode(MethodDeclaration node) {
+
         MethodDeclaration md = node.findFirst(MethodDeclaration.class).get();
         Line line = new Line();
         line.setBegin(md.getRange().get().begin.line);
@@ -63,12 +70,29 @@ public class Test {
 
         System.out.println(line);
 
-        // md.getTokenRange().get().forEach(token -> {
-        // System.out.println(token);
-        // });
-        // Line line = new Line(md.getDeclarationAsString(),
-        // md.getRange().get().begin.line,
-        // md.getRange().get().begin.line);
+        return line;
+    }
+
+    private static Line handleCommentedNode(ClassOrInterfaceDeclaration node) {
+
+        ClassOrInterfaceDeclaration coid = node.findFirst(ClassOrInterfaceDeclaration.class).get();
+        Line line = new Line();
+        line.setBegin(coid.getRange().get().begin.line);
+
+        String content = "";
+        for (JavaToken jToken : coid.getTokenRange().get()) {
+            if (jToken.getText().equals("{")) {
+                line.setEnd(jToken.getRange().get().end.line);
+                line.setContent(content.replaceAll("\\R+", " ") + " {");
+                break;
+            } else {
+                content += jToken.getText();
+                // Can it contain comment?
+            }
+        }
+
+        System.out.println(line);
+
         return line;
     }
 
