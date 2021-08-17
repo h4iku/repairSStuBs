@@ -36,10 +36,15 @@ public class Test {
                 if (comment.getRange().get().begin.line == lineNumber && (comment instanceof JavadocComment)
                         && comment.getCommentedNode().isPresent()) {
                     Node node = comment.getCommentedNode().get();
-                    if (node instanceof MethodDeclaration)
-                        return Optional.of(handleCommentedNode((MethodDeclaration) node));
-                    else
-                        return Optional.of(handleCommentedNode((ClassOrInterfaceDeclaration) node));
+                    if (node instanceof MethodDeclaration) {
+                        Line line = handleCommentedNode((MethodDeclaration) node);
+                        return Optional.of(line);
+                    } else if (node instanceof ClassOrInterfaceDeclaration) {
+                        Line line = handleCommentedNode((MethodDeclaration) node);
+                        return Optional.of(line);
+                    } else {
+                        System.out.println("Not handled yet");
+                    }
                 } else {
                     return Optional.empty();
                 }
@@ -57,18 +62,16 @@ public class Test {
         line.setBegin(md.getRange().get().begin.line);
 
         for (JavaToken jToken : md.getTokenRange().get()) {
-            if (jToken.getText().equals("{")) {
+            if (jToken.getCategory().isSeparator() && jToken.getText().equals("{")) {
                 line.setEnd(jToken.getRange().get().end.line);
                 line.setContent(md.getDeclarationAsString() + " {");
                 break;
-            } else if (jToken.getText().equals(";")) {
+            } else if (jToken.getCategory().isSeparator() && jToken.getText().equals(";")) {
                 line.setEnd(jToken.getRange().get().end.line);
                 line.setContent(md.getDeclarationAsString() + ";");
                 break;
             }
         }
-
-        System.out.println(line);
 
         return line;
     }
@@ -81,17 +84,14 @@ public class Test {
 
         String content = "";
         for (JavaToken jToken : coid.getTokenRange().get()) {
-            if (jToken.getText().equals("{")) {
+            if (jToken.getCategory().isSeparator() && jToken.getText().equals("{")) {
                 line.setEnd(jToken.getRange().get().end.line);
                 line.setContent(content.replaceAll("\\R+", " ") + " {");
                 break;
-            } else {
+            } else if (!jToken.getCategory().isComment()) {
                 content += jToken.getText();
-                // Can it contain comment?
             }
         }
-
-        System.out.println(line);
 
         return line;
     }

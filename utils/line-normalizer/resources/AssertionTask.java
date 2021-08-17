@@ -17,8 +17,7 @@
 package org.apache.camel.component.mock;
 
 /**
- * Assertion task that supports fail fast mode by running the assertion asap on
- * the n'th received message.
+ * Assertion task that supports fail fast mode by running the assertion asap on the n'th received message.
  */
 public interface AssertionTask extends Runnable {
 
@@ -27,7 +26,7 @@ public interface AssertionTask extends Runnable {
      *
      * @param index the n'th received message
      */
-    void assertOnIndex(int index) // comment
-            throws Exception;
+    void assertOnIndex // comment
+    (int index);
 
 }

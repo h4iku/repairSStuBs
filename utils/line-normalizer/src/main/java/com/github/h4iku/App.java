@@ -8,14 +8,15 @@ public class App {
 
         String filePath1 = "resources/AssertionTask.java";
         String result1 = "void assertOnIndex(int index);";
-        Line line1 = Test.checkLine(filePath1, 25).get();
-        // System.out.println(line);
+        Line line1 = Test.checkLine(filePath1, 24).get();
+        System.out.println(line1);
         // if (!line.getLine().trim().equals(result1))
         // System.out.println("Nope");
 
         String filePath2 = "resources/LocalizedMessage.java";
         String result2 = "public class LocalizedMessage implements Comparable {";
         Line line2 = Test.checkLine(filePath2, 25).get();
+        System.out.println(line1);
 
     }
 }
