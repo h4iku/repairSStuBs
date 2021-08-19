@@ -13,6 +13,11 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.JavadocComment;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.visitor.GenericVisitor;
+import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
+import com.github.javaparser.ast.visitor.VoidVisitor;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 public class Test {
 
@@ -40,7 +45,7 @@ public class Test {
                         Line line = handleCommentedNode((MethodDeclaration) node);
                         return Optional.of(line);
                     } else if (node instanceof ClassOrInterfaceDeclaration) {
-                        Line line = handleCommentedNode((MethodDeclaration) node);
+                        Line line = handleCommentedNode((ClassOrInterfaceDeclaration) node);
                         return Optional.of(line);
                     } else {
                         System.out.println("Not handled yet");
@@ -48,6 +53,14 @@ public class Test {
                 } else {
                     return Optional.empty();
                 }
+            }
+        }
+
+        List<MethodDeclaration> mds = cu.findAll(MethodDeclaration.class);
+        for (MethodDeclaration md : mds) {
+            if (md.getRange().get().begin.line <= lineNumber && lineNumber <= md.getRange().get().end.line) {
+                VoidVisitor<Void> lineExtractor = new LineExtractor(lineNumber);
+                lineExtractor.visit(md, null);
             }
         }
 
@@ -86,7 +99,7 @@ public class Test {
         for (JavaToken jToken : coid.getTokenRange().get()) {
             if (jToken.getCategory().isSeparator() && jToken.getText().equals("{")) {
                 line.setEnd(jToken.getRange().get().end.line);
-                line.setContent(content.replaceAll("\\R+", " ") + " {");
+                line.setContent(content.replaceAll("\\s+", " ") + "{");
                 break;
             } else if (!jToken.getCategory().isComment()) {
                 content += jToken.getText();
@@ -94,6 +107,28 @@ public class Test {
         }
 
         return line;
+    }
+
+    public static class LineExtractor extends VoidVisitorAdapter<Void> {
+
+        private int lineNumber;
+
+        public LineExtractor(int lineNumber) {
+            this.lineNumber = lineNumber;
+        }
+
+        @Override
+        public void visit(VariableDeclarationExpr vde, Void arg) {
+            super.visit(vde, arg);
+
+            // TODO: Write a method for this repetitive line number inclusion test.
+            if (vde.getRange().get().begin.line <= lineNumber && lineNumber <= vde.getRange().get().end.line) {
+                System.out.println(vde);
+            }
+            // Line line = new Line();
+
+        }
+
     }
 
 }
