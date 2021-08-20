@@ -28,7 +28,7 @@ def create_fixed_file(dir_path, file_name, line_number, fixed_line):
 def compare(patched_file, fixed_comp_file, line_number, fixed_line):
 
     ast_diff = (Path(__file__).parent /
-                'lib/gumtree-spoon-ast-diff-1.30-jar-with-dependencies.jar')
+                'lib/gumtree-spoon-ast-diff-1.35-jar-with-dependencies.jar')
     cmd = ['java', '-jar', ast_diff, patched_file, fixed_comp_file]
     try:
         comp_out = subprocess.check_output(cmd).decode()
