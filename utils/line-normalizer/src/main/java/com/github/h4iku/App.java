@@ -1,8 +1,5 @@
 package com.github.h4iku;
 
-import com.github.h4iku.Test;
-import com.github.h4iku.Line;
-
 public class App {
     public static void main(String[] args) throws Exception {
 
@@ -27,6 +24,10 @@ public class App {
         // System.out.println(line3);
         // if (!line3.getContent().trim().equals(result3))
         // System.out.println("Nope");
+
+        String filePath4 = "resources/XdocsPagesTest.java";
+        String result4 = "if (\"Notes\".equals(subSectionName) || \"Rule Description\".equals(subSectionName) || \"Metadata\".equals(subSectionName)) {;";
+        Test.checkLine(filePath4, 1102);
 
     }
 }
