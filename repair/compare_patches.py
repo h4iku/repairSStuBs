@@ -31,7 +31,7 @@ def compare(patched_file, fixed_comp_file, line_number, fixed_line):
                 'lib/gumtree-spoon-ast-diff-1.35-jar-with-dependencies.jar')
     cmd = ['java', '-jar', ast_diff, patched_file, fixed_comp_file]
     try:
-        comp_out = subprocess.check_output(cmd).decode()
+        comp_out = subprocess.check_output(cmd, timeout=600, text=True)
 
         if 'no AST change' in comp_out:
             return True
