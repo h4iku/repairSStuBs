@@ -71,6 +71,7 @@ def main():
         fixed_file = bug.fixed_file_line_dir / bug.file_name
 
         # If the bug is already processed
+        # This is only for resume after interruption. It won't prevent duplicates.
         if (str(bug.buggy_file_line_dir), bug.bug_type) in processed:
             continue
 
