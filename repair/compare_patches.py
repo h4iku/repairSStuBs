@@ -14,7 +14,7 @@ def create_fixed_file(dir_path, file_name, line_number, fixed_line):
     fixed_file_comp = shutil.copyfile(
         dir_path/file_name, dir_path/f'fixed_{file_name}')
 
-    # Replacing the patched line with the actual fixed one
+    # Replacing the buggy line with the actual fixed one
     with open(fixed_file_comp, 'r+') as f:
         lines = f.read().splitlines()
         lines[line_number - 1] = fixed_line.rstrip()
@@ -31,7 +31,9 @@ def compare(patched_file, fixed_comp_file, line_number, fixed_line):
                 'lib/gumtree-spoon-ast-diff-1.35-jar-with-dependencies.jar')
     cmd = ['java', '-jar', ast_diff, patched_file, fixed_comp_file]
     try:
-        comp_out = subprocess.check_output(cmd, timeout=600, text=True)
+        comp_out = subprocess.check_output(
+            cmd, stderr=subprocess.DEVNULL, timeout=600, text=True
+        )
 
         if 'no AST change' in comp_out:
             return True
@@ -79,7 +81,7 @@ def main():
 
         try:
             with open(INPUT / fixed_file) as file:
-                fixed_line = file.readlines()[bug.bug_line_num - 1]
+                fixed_line = file.readlines()[bug.fix_line_num - 1]
         except Exception as e:
             print(e)
             print(INPUT / fixed_file)
