@@ -1,6 +1,6 @@
 from pathlib import Path
 
-n_jobs = 4
+n_jobs = -1  # All CPUs are used
 
 ROOT = Path(__file__).parent
 
