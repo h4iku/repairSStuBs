@@ -85,7 +85,12 @@ This package generates patches and tries to repair the SStuBs.
 Uses [SequenceR](https://github.com/KTH/chai) to generate patches for each SStuB. You should install SequenceR separately for this to work. The directory where SequenceR installed is specified in the `sequencer_home` variable. By default, it points to the home directory of the operating system. The beam size is also set to 50.
 
 **`compare_patches.py`:**
-After getting patches, it's time to find if the bug is repaired or not. [Gumtree Spoon AST Diff](https://github.com/SpoonLabs/gumtree-spoon-ast-diff/) is used to compare generated patches with the actual fix. You need to have Java 11 installed for Gumtree Spoon AST Diff to work. We copy the buggy file and replace its buggy line with the fixed line to have two identical source files with only one line of difference. Then AST Diff is used to see if the patched line is the same as the fixed line. We don't use the source file from the fix commit for this comparison since a commit may contain other changes to a file.
+After getting patches, it's time to find if the bug is repaired or not. The comparison is done between the generated patch line and the fixed line of the fix commit. Two methods can be used to compare these two lines:
+
+- `spoon-core`: That relies on [Spoon](https://spoon.gforge.inria.fr/)'s default [pretty-printing](https://spoon.gforge.inria.fr/custom-pretty-printing.html) to uniformize separators and whitespaces.
+- `gumtree-spoon`: That uses the snippet compare functionality of [Gumtree Spoon AST Diff](https://github.com/SpoonLabs/gumtree-spoon-ast-diff/).
+
+The default compare backend is `spoon-core`, but it can change using the `backend` variable in the `main` function of this module. You need Java 11 installed for these to work.
 
 **`evaluate.py`:**
 Results from the patch comparison of the previous module are written to a file. This module parses this result file and prints out evaluations like total generated patches, the number of repaired bugs and grouping repaired bugs by bug patterns.

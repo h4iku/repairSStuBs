@@ -1,53 +1,57 @@
 import csv
-import shutil
-import subprocess
+import sys
 from pathlib import Path
 
-from joblib.parallel import Parallel, delayed
+import jpype
+import jpype.imports
+from jpype.types import *
+from pathos.pools import ProcessPool
+from tqdm import tqdm
 from utils.config import DATASET, INPUT, REPAIR_OUTPUT, REPAIR_RESULT, n_jobs
 from utils.data_reader import ManySStuBs4J
 
 
-def create_fixed_file(dir_path, file_name, line_number, fixed_line):
+gumtree_spoon = (Path(__file__).parent /
+                 'lib/gumtree-spoon-ast-diff-1.35-jar-with-dependencies.jar')
+spoon_core = (Path(__file__).parent /
+              'lib/spoon-core-9.1.0-jar-with-dependencies.jar')
+classpath = [str(gumtree_spoon), str(spoon_core)]
+jpype.startJVM(classpath=classpath)
 
-    # Copy generated file
-    fixed_file_comp = shutil.copyfile(
-        dir_path/file_name, dir_path/f'fixed_{file_name}')
-
-    # Replacing the buggy line with the actual fixed one
-    with open(fixed_file_comp, 'r+') as f:
-        lines = f.read().splitlines()
-        lines[line_number - 1] = fixed_line.rstrip()
-        f.seek(0)
-        f.truncate()
-        f.write('\n'.join(lines))
-
-    return fixed_file_comp
+from gumtree.spoon import AstComparator
+from spoon import Launcher
 
 
-def compare(patched_file, fixed_comp_file, line_number, fixed_line):
+def compare(patch_file, line_number, fixed_line, backend):
 
-    ast_diff = (Path(__file__).parent /
-                'lib/gumtree-spoon-ast-diff-1.35-jar-with-dependencies.jar')
-    cmd = ['java', '-jar', ast_diff, patched_file, fixed_comp_file]
+    with open(patch_file) as f:
+        patch_line = f.readlines()[line_number - 1].strip()
+
+    # Since we know that the given line is definitely inside a method
+    patch_template = f'class C {{ void m() {{ {patch_line} }} }}'
+    fixed_template = f'class C {{ void m() {{ {fixed_line} }} }}'
+
     try:
-        comp_out = subprocess.check_output(
-            cmd, stderr=subprocess.DEVNULL, timeout=600, text=True
-        )
-
-        if 'no AST change' in comp_out:
-            return True
-        else:
-            return False
+        if backend == 'spoon-core':
+            patch_class = Launcher.parseClass(patch_template)
+            fixed_class = Launcher.parseClass(fixed_template)
+            if patch_class.toString() == fixed_class.toString():
+                return True
+            else:
+                return False
+        elif backend == 'gumtree-spoon':
+            comp_out = AstComparator().compare(patch_template, fixed_template)
+            if 'no AST change' in comp_out.toString():
+                return True
+            else:
+                return False
 
     except Exception as e:
 
-        # Fallback to comparing strings
-        with open(patched_file) as f:
-            lines = f.read().splitlines()
-        buggy_line = lines[line_number - 1]
+        # print(e, file=sys.stderr)
 
-        if buggy_line.strip().replace(' ', '') == fixed_line.strip().replace(' ', ''):
+        # Fallback to comparing strings
+        if patch_line.replace(' ', '') == fixed_line.replace(' ', ''):
             return True
         else:
             return False
@@ -55,8 +59,11 @@ def compare(patched_file, fixed_comp_file, line_number, fixed_line):
 
 def main():
 
-    bugs = ManySStuBs4J(DATASET).bugs
+    # Backend can be either `spoon-core` or `gumtree-spoon`
+    backend = 'spoon-core'
+    pool = ProcessPool(nodes=n_jobs)
 
+    bugs = ManySStuBs4J(DATASET).bugs
     REPAIR_RESULT.touch()
 
     # Retreiving already processed bugs
@@ -64,9 +71,7 @@ def main():
         reader = csv.reader(f)
         processed = {(x[0], x[-1]) for x in reader}
 
-    for i, bug in enumerate(bugs):
-
-        print(f'Patch comparing for bug {i}')
+    for bug in tqdm(bugs, total=len(bugs)):
 
         fixed_file = bug.fixed_file_line_dir / bug.file_name
 
@@ -82,23 +87,17 @@ def main():
 
         try:
             with open(INPUT / fixed_file) as file:
-                fixed_line = file.readlines()[bug.fix_line_num - 1]
+                fixed_line = file.readlines()[bug.fix_line_num - 1].strip()
         except Exception as e:
-            print(e)
-            print(INPUT / fixed_file)
+            print(e, file=sys.stderr)
+            print(INPUT / fixed_file, file=sys.stderr)
             continue
 
-        fixed_comp_file = create_fixed_file(
-            INPUT / bug.buggy_file_line_dir,
-            bug.file_name, bug.bug_line_num, fixed_line)
-
-        comp_res = Parallel(n_jobs=n_jobs)(
-            delayed(compare)(patch_dir / bug.file_name, fixed_comp_file,
-                             bug.bug_line_num, fixed_line)
-            for patch_dir in sorted(patch_output.iterdir(), key=lambda x: int(x.name))
-        )
-
-        Path.unlink(fixed_comp_file)
+        patch_files = [path_dir / bug.file_name
+                       for path_dir in sorted(patch_output.iterdir(), key=lambda x: int(x.name))]
+        pfnum = len(patch_files)
+        comp_res = pool.map(compare, patch_files, [bug.bug_line_num] * pfnum,
+                            [fixed_line] * pfnum, [backend] * pfnum)
 
         patch_result = [str(bug.buggy_file_line_dir), repr(comp_res),
                         bug.project_name, bug.bug_type]
