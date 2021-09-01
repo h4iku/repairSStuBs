@@ -100,6 +100,7 @@ def main():
                             [fixed_line] * pfnum, [backend] * pfnum)
 
         patch_result = [str(bug.buggy_file_line_dir), repr(comp_res),
+                        str(bug.fixed_file_line_dir), bug.file_name,
                         bug.project_name, bug.bug_type]
 
         with open(REPAIR_RESULT, 'a', newline='') as result_csv_file:

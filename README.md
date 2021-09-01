@@ -93,7 +93,33 @@ After getting patches, it's time to find if the bug is repaired or not. The comp
 The default compare backend is `spoon-core`, but it can change using the `backend` variable in the `main` function of this module. You need Java 11 installed for these to work.
 
 **`evaluate.py`:**
-Results from the patch comparison of the previous module are written to a file. This module parses this result file and prints out evaluations like total generated patches, the number of repaired bugs and grouping repaired bugs by bug patterns.
+Results from the patch comparison of the previous module are written to `repair_result.csv`. This module parses this file and prints out evaluations like total generated patches, the number of repaired bugs, and the number repaired bugs grouped by bug patterns.
+
+The generated patches for the `sstubs.json` version of the dataset and the correct ones detected using the `spoon-core` backend can be downloaded from this table:
+
+| Generated Patches | Correct Patches |
+|-------------------|-----------------|
+| [`repair_output.zip`](https://www.mediafire.com/file/jd9byxt3qcxy7bu/repair_output.zip/file) | [`correct_patches.zip`](https://www.mediafire.com/file/m6qfoukssknuhvi/correct_patches.zip/file) |
+
+In this output, a total of 250861 patches are generated for 6430 bugs with an average of 39.01 patches for each bug. Out of these, 1266 bugs got a correct patch. The following table shows the detailed result for each bug pattern.
+
+|         Pattern Name         |SStuBs|Correct Patches| Ratio |
+|------------------------------|-----:|--------------:|------:|
+|CHANGE_IDENTIFIER             |  2332|            350| 15.01%|
+|DIFFERENT_METHOD_SAME_ARGS    |  1365|            136| 9.96% |
+|CHANGE_NUMERAL                |   744|            202| 27.15%|
+|OVERLOAD_METHOD_MORE_ARGS     |   649|             62| 9.55% |
+|CHANGE_OPERATOR               |   237|            135| 56.96%|
+|CHANGE_CALLER_IN_FUNCTION_CALL|   169|             34| 20.12%|
+|CHANGE_UNARY_OPERATOR         |   154|            100| 64.94%|
+|OVERLOAD_METHOD_DELETED_ARGS  |   154|             92| 59.74%|
+|MORE_SPECIFIC_IF              |   151|             20| 13.25%|
+|LESS_SPECIFIC_IF              |   132|              7| 5.30% |
+|SWAP_ARGUMENTS                |   117|             10| 8.55% |
+|SWAP_BOOLEAN_LITERAL          |   111|             86| 77.48%|
+|CHANGE_OPERAND                |    92|             20| 21.74%|
+|CHANGE_MODIFIER               |    23|             12| 52.17%|
+|Total                         |  6430|           1266| 19.69%|
 
 
 ## How To Use

@@ -11,6 +11,7 @@ INPUT = DATASET_ROOT / 'input'
 REPAIR_ROOT = ROOT / '../repair'
 REPAIR_OUTPUT = REPAIR_ROOT / 'result/repair_output'
 REPAIR_RESULT = REPAIR_ROOT / 'result/repair_result.csv'
+CORRECT_PATCHES = REPAIR_ROOT / 'result/correct_patches'
 
 DETECT_ROOT = ROOT / '../detect'
 PATCH_TOKENS = DETECT_ROOT / 'result/patch_tokens.json'
