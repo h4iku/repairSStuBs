@@ -121,8 +121,8 @@ def build_embedding(df):
         data.append(list(bug['patched']))
 
     documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(data)]
-    model = Doc2Vec(documents, vector_size=vector_size,
-                    window=10, min_count=1, workers=n_jobs)
+    model = Doc2Vec(documents, vector_size=vector_size, window=10,
+                    epochs=20, min_count=1, workers=n_jobs)
     model.save(str(EMBED_MODEL))
 
 
