@@ -1,73 +1,61 @@
-import json
-import os
-import random
-from datasets.features.features import Features
+import itertools
 
 import numpy as np
-import pandas as pd
-import torch
-from datasets import Dataset, DatasetDict, Value, Features, ClassLabel
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from datasets import ClassLabel, Dataset, DatasetDict, Features, Value
+from sklearn.metrics import (accuracy_score, f1_score, precision_score,
+                             recall_score)
 from sklearn.model_selection import train_test_split
-from transformers import (AdamW, AutoModelForSequenceClassification,
-                          AutoTokenizer, DataCollatorWithPadding, Trainer,
-                          TrainingArguments)
-# from simpletransformers.classification import ClassificationModel, ClassificationArgs
-from utils.config import DATASET, EMBED_MODEL, PATCH_TOKENS, n_jobs
+from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
+                          DataCollatorWithPadding, Trainer, TrainingArguments)
+from utils.config import DATASET, DETECT_RESULT
 from utils.data_reader import ManySStuBs4J
 
-os.environ["WANDB_DISABLED"] = "true"
-os.environ['HF_DATASETS_OFFLINE'] = "1"
-os.environ['TRANSFORMERS_OFFLINE'] = "1"
 
-# TODO: Test without specifying a bug type and train on everything.
-#       Using `stratify` will keep the bug types at balance.
-bug_type = 'LESS_SPECIFIC_IF'
+ignored_bug_types = [
+    'CHANGE_MODIFIER',
+    'ADD_THROWS_EXCEPTION',
+    'DELETE_THROWS_EXCEPTION',
+]
 
-# checkpoint = 'distilbert-base-uncased'
 checkpoint = 'huggingface/CodeBERTa-small-v1'
 
 sstubs = ManySStuBs4J(DATASET).bugs
-random.Random(3).shuffle(sstubs)
 
-all_data = []
-all_labels = []
-for bug in sstubs:
-    if bug.bug_type == bug_type:
-        all_data.append(bug.source_before_fix)
-        all_labels.append(1)
-        all_data.append(bug.source_after_fix)
-        all_labels.append(0)
+all_data = [(bug.source_before_fix, bug.source_after_fix)
+            for bug in sstubs if bug.bug_type not in ignored_bug_types]
+all_labels = list(itertools.repeat((1, 0), len(all_data)))
+bug_types = [bug.bug_type for bug in sstubs
+             if bug.bug_type not in ignored_bug_types]
 
-nb_train = int(0.8 * len(all_data))
-train_data = all_data[: nb_train]
-train_labels = all_labels[:nb_train]
-eval_data = all_data[nb_train:]
-eval_labels = all_labels[nb_train:]
+train_data, test_data, train_labels, test_labels = train_test_split(
+    all_data, all_labels, test_size=0.2, random_state=42, stratify=bug_types)
 
-class_names = ['not buggy', 'buggy']
+train_data = itertools.chain.from_iterable(train_data)
+train_labels = itertools.chain.from_iterable(train_labels)
+test_data = itertools.chain.from_iterable(test_data)
+test_labels = itertools.chain.from_iterable(test_labels)
+
+class_names = ['not_buggy', 'buggy']
 features = Features({'text': Value('string'),
                      'label': ClassLabel(names=class_names)})
 
 raw_train_dataset = Dataset.from_dict(
     {'text': train_data,
      'label': train_labels},
-    features=features
+    features=features,
 )
 raw_val_dataset = Dataset.from_dict(
-    {'text': eval_data,
-     'label': eval_labels},
-    features=features
+    {'text': test_data,
+     'label': test_labels},
+    features=features,
 )
 raw_dataset = DatasetDict(train=raw_train_dataset, validation=raw_val_dataset)
 
-print(raw_dataset['train'].features)
-# import sys
-# sys.exit(0)
-
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-model = AutoModelForSequenceClassification.from_pretrained(checkpoint,
-                                                           num_labels=2)
+
+
+def model_init():
+    return AutoModelForSequenceClassification.from_pretrained(checkpoint, num_labels=2)
 
 
 def compute_metrics(eval_preds):
@@ -76,9 +64,9 @@ def compute_metrics(eval_preds):
     metrics = {
         'accuracy': accuracy_score(labels, predictions),
         'precision': precision_score(labels, predictions),
-        'recall': recall_score(labels, predictions)
+        'recall': recall_score(labels, predictions),
+        'f1-score': f1_score(labels, predictions),
     }
-    # print(metrics)
     return metrics
 
 
@@ -91,37 +79,32 @@ data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 
 training_args = TrainingArguments(
-    output_dir="test-trainer",
-    num_train_epochs=2,
+    output_dir=DETECT_RESULT,
+    num_train_epochs=10,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=16,
     warmup_steps=500,
+    learning_rate=5e-5,
     weight_decay=0.01,
-    evaluation_strategy='epoch'  # should set evaluation_strategy to `epoch` or `steps`
-    # logging_dir='./logs',
-    # logging_steps=10,
+    evaluation_strategy='epoch',
+    save_strategy="epoch",
+    load_best_model_at_end=True,
+    metric_for_best_model='f1-score',
+    report_to="none",
 )
 
 trainer = Trainer(
-    model,
-    training_args,
+    model_init=model_init,
+    args=training_args,
     train_dataset=tokenized_dataset["train"],
     eval_dataset=tokenized_dataset["validation"],
     data_collator=data_collator,
     tokenizer=tokenizer,
-    compute_metrics=compute_metrics
+    compute_metrics=compute_metrics,
 )
 
 trainer.train()
 
-predictions = trainer.predict(tokenized_dataset["validation"])
-print(predictions.predictions.shape, predictions.label_ids.shape)
-
-
-preds = np.argmax(predictions.predictions, axis=-1)
-
-
-acc = accuracy_score(predictions.label_ids, preds)
-prec = precision_score(predictions.label_ids, preds)
-rec = recall_score(predictions.label_ids, preds)
-print(acc, prec, rec)
+# Run evaluation and get best model's metrics
+evaluation_metrics = trainer.evaluate()
+print(evaluation_metrics)
