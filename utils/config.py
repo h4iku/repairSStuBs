@@ -15,8 +15,6 @@ CORRECT_PATCHES = REPAIR_ROOT / 'result/correct_patches'
 
 DETECT_ROOT = ROOT / '../detect'
 DETECT_RESULT = DETECT_ROOT / 'result'
-PATCH_TOKENS = DETECT_ROOT / 'result/patch_tokens.json'
-EMBED_MODEL = DETECT_ROOT / 'result/embedding.model'
 
 sstubs = DATASET_ROOT / 'sstubs.json'
 bugs = DATASET_ROOT / 'bugs.json'

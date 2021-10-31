@@ -1,4 +1,4 @@
-# Detecting simple stupid bugs (SStuBs) using code changes and repairing them with a seq2seq model
+# Detecting simple stupid bugs (SStuBs) using pre-trained transformer and repairing them with seq2seq model
 
 Some code to work with the [ManySStuBs4J dataset](https://doi.org/10.5281/zenodo.3653444), which is a collection of simple fixes to single line Java bugs.
 
@@ -68,13 +68,10 @@ where `line_number` shows which line is normalized. These line numbers are the s
 
 ### `detect`
 
-This package contains a simple example-based bug detection tool that uses a feed-forward neural network classifier.
+This package contains a simple example-based bug detection tool that uses a pre-trained transformer for the bug classification task.
 
-**`prepare.py`:**
-Uses `fixPatch` field of each SStuB and extracts the patched lines of the code changes (i.e., the ones starting with `+`) as well as the patch context lines. It then tokenizes these to learn word embeddings using [Doc2Vec](https://radimrehurek.com/gensim_3.8.3/models/doc2vec.html). The whole data is used to train 100-dimensional vectors with a window size of 10 around each token. These parameters can change in the `build_embedding()` function.
-
-**`classify.py`:**
-Uses the output lines of `utils/line_normalize.py` to build a bug detection model for each bug pattern. For each line, it infers a vector from the embedding model as the input to the classifier. Bug pattern is specified using the ‍`bug_type` variable, and its values are the same as the ones in the dataset, which are described in the [mineSStuBs repository](https://github.com/mast-group/mineSStuBs). The classifier is a feed-forward neural network with two hidden layers.
+**`build_model.py`:**
+Fine-tunes a [pre-trained CodeBERTa model](https://huggingface.co/huggingface/CodeBERTa-small-v1) to build a bug detection model for all the bug types described in the [mineSStuBs repository](https://github.com/mast-group/mineSStuBs). Fine-tuning is based on `source_before_fix` and `source_after_fix` fields of the dataset for buggy and fixed examples, respectively. During fine-tuning, the checkpoints save in the `utils.config.DETECT_RESULT` directory for each epoch and can be used to further train or predict bugs.
 
 
 ### `repair`

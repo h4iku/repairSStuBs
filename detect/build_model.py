@@ -105,6 +105,6 @@ trainer = Trainer(
 
 trainer.train()
 
-# Run evaluation and get best model's metrics
+# Run evaluation to get the best model's metrics
 evaluation_metrics = trainer.evaluate()
 print(evaluation_metrics)
