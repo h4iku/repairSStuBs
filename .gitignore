@@ -1,6 +1,9 @@
 # VSCode project settings / Environment
 .vscode/
-env/
+.env*/
+.venv*/
+env*/
+venv*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
